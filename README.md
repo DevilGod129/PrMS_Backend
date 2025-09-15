@@ -115,3 +115,51 @@ This project uses the ISC license (see `package.json`).
 ---
 
 If you want, I can also add a short Postman/Insomnia collection, expand the README with contribution/PR guidelines, or add a .env guide—tell me which you prefer.
+
+## Quick Start
+
+1. Install dependencies
+2. Create a `.env` from `.env.example` and set your values
+3. Start the server
+
+### Environment
+
+Required vars (see `.env.example`):
+
+- PORT
+- MONGO_URI
+- JWT_SECRET
+- JWT_EXPIRES_IN (e.g., 1h)
+
+### Run
+
+Development (auto-restart):
+
+```
+npm run dev
+```
+
+Production:
+
+```
+npm start
+```
+
+## Auth API
+
+Base: `/api/auth`
+
+- POST `/register`
+
+  - body: `{ name, email, password }`
+  - returns: `{ message, user, token }`
+
+- POST `/login`
+
+  - body: `{ email, password }`
+  - returns: `{ message, user, token }`
+
+- GET `/me` (requires `Authorization: Bearer <token>`)
+  - returns: `{ user }`
+
+Example protected route also exists at `GET /api/secret`.

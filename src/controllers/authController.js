@@ -91,9 +91,40 @@ exports.me = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json({ user });
+    res.json(user); // return user object directly for frontend consistency
   } catch (err) {
     console.error("Me error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// PATCH /api/auth/me - update profile
+exports.updateMe = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const allowedFields = ["name", "email"];
+    const updates = {};
+    for (const key of allowedFields) {
+      if (req.body[key]) updates[key] = req.body[key];
+    }
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
+    // If updating email, check for duplicate
+    if (updates.email) {
+      const existing = await User.findOne({ email: updates.email });
+      if (existing && existing._id.toString() !== userId) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updates, { new: true });
+    res.json(user);
+  } catch (err) {
+    console.error("UpdateMe error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
